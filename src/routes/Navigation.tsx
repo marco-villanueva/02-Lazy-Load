@@ -1,58 +1,47 @@
+import { Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import logo from "../logo.svg";
-import { LazyPage1, LazyPage2, LazyPage3 } from "../pages";
+import { routes } from "./routes";
 
 export const Navigation = () => {
     return (
-        <BrowserRouter>
-            <div className="main-layout">
-                <nav>
-                    <img src={logo} alt="React Logo" />
-                    <ul>
-                        <li>
-                            <NavLink
-                                 to="/lazy1"
-                                className={({ isActive }) =>
-                                    isActive ? "nav-active" : ""
-                                }
-                            >
-                                Lazy Page 1
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/lazy2"
-                                className={({ isActive }) =>
-                                    isActive ? "nav-active" : ""
-                                }
-                            >
-                                Lazy Page 2
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/lazy3"
-                                className={({ isActive }) =>
-                                    isActive ? "nav-active" : ""
-                                }
-                            >
-                                Lazy Page 3
-                            </NavLink>
-                        </li>
-                    </ul>
-                </nav>
-                <Routes>
-                    <Route path="Lazy1" element={<LazyPage1 />} />
-                    <Route path="Lazy2" element={<LazyPage2 />} />
-                    <Route path="Lazy3" element={<LazyPage3 />} />
+        <Suspense fallback={<span>Loading...</span>} >
+            <BrowserRouter>
+                <div className="main-layout">
+                    <nav>
+                        <img src={logo} alt="React Logo" />
+                        <ul>
+                            {routes.map((route, index) => (
+                                <li key={index}>
+                                    <NavLink
+                                        to={route.to}
+                                        className={({ isActive }) =>
+                                            isActive ? "nav-active" : ""
+                                        }
+                                    >
+                                        {route.name}
+                                    </NavLink>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                    <Routes>
+                        {routes.map(({ name, path, Component }) => (
+                            <Route
+                                key={name}
+                                path={path}
+                                element={<Component />}
+                            />
+                        ))}
 
-                    <Route
-                        path="/*"
-                        element={<Navigate to="/lazy1" replace />}
-                    />
-                </Routes>
-            </div>
-        </BrowserRouter>
+                        <Route
+                            path="/*"
+                            element={<Navigate to={routes[0].to} replace />}
+                        />
+                    </Routes>
+                </div>
+            </BrowserRouter>
+        </Suspense>
     );
 };
